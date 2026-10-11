@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Bau-Helfer für Minecraft</title>
+<meta name="description" content="Bau-Helfer: Minecraft-Befehle einfach per Fingertipp zusammenbauen.">
+<meta name="theme-color" content="#5fa231">
+<meta property="og:title" content="Bau-Helfer für Minecraft">
+<meta property="og:description" content="Minecraft-Befehle einfach per Fingertipp zusammenbauen.">
+<meta property="og:type" content="website">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bau-Helfer">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+@font-face{font-family:"Lexend";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/lexend-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Lexend";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/lexend-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Lexend";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/lexend-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:800;font-display:swap;src:url("fonts/jetbrains-mono-latin-800-normal.woff2") format("woff2")}
+@font-face{font-family:"Press Start 2P";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/press-start-2p-latin-400-normal.woff2") format("woff2")}
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#e8f2fa; --ink:#1f2933; --ink-soft:#4a5766;
+  --card:#ffffff; --tile:#f2f6fa; --line:#232323; --shadow:#232323;
+  --sel-bg:#dff3cf; --sel-line:#2f7d12;
+  --primary:#2f7d12; --primary-ink:#ffffff;
+  --ground-a:#bcd3e3; --ground-b:#b0cadc; --side-sky:#bfe0f5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141c28; --ink:#f1f5f9; --ink-soft:#b6c2cf;
+    --card:#212c3d; --tile:#2a3850; --line:#0a0f16; --shadow:#0a0f16;
+    --sel-bg:#27421d; --sel-line:#7ad14a;
+    --primary:#3f9a1c;
+    --ground-a:#34465c; --ground-b:#2d3e53; --side-sky:#27385a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141c28; --ink:#f1f5f9; --ink-soft:#b6c2cf;
+  --card:#212c3d; --tile:#2a3850; --line:#0a0f16; --shadow:#0a0f16;
+  --sel-bg:#27421d; --sel-line:#7ad14a;
+  --primary:#3f9a1c;
+  --ground-a:#34465c; --ground-b:#2d3e53; --side-sky:#27385a;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+html,body{margin:0}
+body{
+  min-height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Lexend",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-weight:500;font-size:18px;line-height:1.5;letter-spacing:.01em;
+}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:4px solid #f5b800;outline-offset:3px}
+
+.grassband{
+  height:56px;border-bottom:4px solid var(--line);
+  background-color:#5fa231;background-image:var(--gtex);background-size:56px 56px;image-rendering:pixelated;
+}
+main{max-width:600px;margin:0 auto;padding:18px 18px 24px}
+
+header{margin:6px 0 18px}
+.logo{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.logo img{width:56px;height:56px;image-rendering:pixelated;border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);background:#c68c64}
+h1{
+  font-family:"Press Start 2P","Courier New",monospace;font-weight:400;
+  font-size:clamp(20px,6vw,28px);line-height:1.25;margin:0;letter-spacing:1px;
+  text-shadow:3px 3px 0 rgba(47,125,18,.35);
+}
+.toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+
+/* Buttons und Kacheln */
+.btn,.tile{
+  position:relative;
+  background:var(--card);color:var(--ink);
+  border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);
+  font-weight:600;font-size:18px;line-height:1.2;
+}
+.btn{min-height:52px;padding:8px 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.small{min-height:44px;padding:6px 14px;font-size:16px}
+.btn.primary{background:var(--primary);color:var(--primary-ink)}
+.btn:active,.tile:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--shadow)}
+.btn[disabled]{opacity:.4;cursor:default}
+.btn[aria-pressed="true"],.tile[aria-pressed="true"],.tab[aria-selected="true"]{background:var(--sel-bg);border-color:var(--sel-line);box-shadow:4px 4px 0 var(--sel-line)}
+.btn[aria-pressed="true"]::after,.tile[aria-pressed="true"]::after,.slot-btn[aria-pressed="true"] .slot::after{
+  content:"✓";position:absolute;top:-12px;right:-12px;width:28px;height:28px;display:grid;place-items:center;
+  background:var(--sel-line);color:#fff;border:3px solid var(--line);font-size:16px;font-weight:700;line-height:1;
+}
+.btn.small[aria-pressed="true"]::after{display:none}
+
+.seg{display:inline-flex;border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);background:var(--card)}
+.seg button{min-height:44px;padding:6px 14px;border:0;background:transparent;font-weight:600;font-size:16px}
+.seg button[aria-pressed="true"]{background:var(--primary);color:#fff}
+
+.tabs{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:9;
+  display:flex;gap:14px;padding:10px 6px 18px;margin:0 -6px 14px;background:var(--bg);
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:68px;padding:6px 4px;
+  background:var(--card);color:var(--ink);border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);
+  font-weight:700;font-size:16px;line-height:1.1;position:relative;
+}
+.tab .ic{font-size:26px;line-height:1.1}
+.tab[aria-selected="true"]{transform:none}
+
+/* Karten / Bereiche */
+.panel{background:var(--card);border:4px solid var(--line);box-shadow:6px 6px 0 var(--shadow);padding:22px 20px 24px;margin:0 6px 30px 0}
+.sec-head{display:flex;align-items:center;gap:14px;margin:0 0 20px}
+.badge{
+  flex:none;width:40px;height:40px;display:grid;place-items:center;
+  background:var(--primary);color:#fff;border:3px solid var(--line);
+  font-family:"Press Start 2P",monospace;font-size:15px;
+}
+h2{margin:0;font-size:24px;font-weight:700;line-height:1.2}
+.hint{margin:0 0 14px;font-weight:600;color:var(--ink-soft)}
+
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;padding:6px 10px 6px 4px}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:14px 8px;min-height:120px}
+.tile svg{width:64px;height:64px}
+.tile .em{font-size:42px;line-height:1}
+.tile b{font-size:19px;font-weight:700}
+.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 18px;padding:6px 10px 6px 4px}
+.menu.m2{grid-template-columns:repeat(2,1fr)}
+.menu .tile{min-height:104px;padding:10px 4px}
+.menu .tile .em{font-size:36px}
+.menu .tile b{font-size:16px}
+
+.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 16px;padding:6px 10px 6px 4px}
+.slot-btn{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.slot{position:relative;width:100%;aspect-ratio:1;background:var(--tile);border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);display:grid;place-items:center}
+.slot-btn:active .slot{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--shadow)}
+.slot i{display:block;width:70%;height:70%;background-size:100% 100%;image-rendering:pixelated}
+.slot-btn[aria-pressed="true"] .slot{background:var(--sel-bg);border-color:var(--sel-line);box-shadow:4px 4px 0 var(--sel-line)}
+.slot-btn .lbl{font-size:14px;font-weight:600;line-height:1.15;text-align:center}
+.palette.small{grid-template-columns:repeat(6,1fr);gap:20px 10px;margin-bottom:6px}
+.palette.small .lbl{display:none}
+.palette.small .slot-btn[aria-pressed="true"] .slot::after{width:22px;height:22px;top:-9px;right:-9px;font-size:13px}
+
+.field-top{display:flex;justify-content:center;margin-bottom:16px}
+.field-wrap{width:min(100%,420px);margin:0 auto;padding-right:6px}
+.grid{display:grid;grid-template-columns:repeat(15,1fr);border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;background:var(--ground-a)}
+.cell{position:relative;aspect-ratio:1;background:var(--ground-a);box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);image-rendering:pixelated}
+.cell.alt{background:var(--ground-b)}
+.cell.on,.cell.wall,.cell.path{background-image:var(--tex);background-size:100% 100%}
+.cell.path::after,.scell.path::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.cell.pop{animation:pop .18s ease-out}
+@keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.cell.pop{animation:none}}
+.player-row{display:grid;grid-template-columns:repeat(15,1fr);border:4px solid var(--line);border-top:0;box-shadow:4px 4px 0 var(--shadow)}
+.player-row .cell{box-shadow:none}
+.player-row .me{z-index:1}
+.player-row img{display:block;width:100%;height:100%;image-rendering:pixelated}
+.side{position:relative;display:grid;grid-template-columns:repeat(16,1fr);border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;background:var(--side-sky)}
+.scell{position:relative;aspect-ratio:1;background:var(--side-sky);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);image-rendering:pixelated}
+.scell.ground{background-image:var(--gtex);background-size:100% 100%}
+.scell.on,.scell.wall,.scell.path{background-image:var(--tex);background-size:100% 100%}
+.steve-body{position:absolute;left:0;bottom:calc(100% / 13);width:calc(100% / 16);height:calc(100% * 2 / 13);image-rendering:pixelated;pointer-events:none}
+
+.steppers{display:flex;flex-wrap:wrap;justify-content:center;gap:22px 24px;margin-top:26px}
+.stepper{display:flex;flex-direction:column;align-items:center;gap:10px}
+.stepper .name{font-size:18px;font-weight:700}
+.stepper .row{display:flex;align-items:center;gap:8px}
+.step-btn{width:52px;height:56px;padding:0;font-family:"Press Start 2P",monospace;font-size:20px}
+.value{min-width:52px;text-align:center;font-family:"Press Start 2P",monospace;font-size:24px}
+
+.where .tile{min-height:132px}
+
+/* Spaß, Kiste */
+.back-row{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.back-row h2{font-size:22px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:22px 18px;padding:6px 10px 6px 4px}
+.cards .tile{min-height:116px}
+.cards .tile b{font-size:17px}
+.stiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:14px;margin:0 0 26px}
+.stile{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:10px 6px;background:var(--tile);border:3px solid var(--line);position:relative}
+.stile .sn{position:absolute;top:-3px;left:-3px;min-width:26px;height:26px;display:grid;place-items:center;background:var(--primary);color:#fff;font-size:14px;font-weight:700;border:3px solid var(--line)}
+.stile .se{font-size:30px;line-height:1.2;margin-top:6px}
+.stile .st{font-size:14px;font-weight:600;line-height:1.2}
+.subhead{margin:0 0 12px;font-size:20px;font-weight:700}
+.opts{display:flex;flex-wrap:wrap;gap:20px 18px;padding:4px 10px 6px 4px;margin-bottom:14px}
+.lbl2{display:block;margin:6px 0 8px;font-weight:700}
+.fun-field{width:100%;min-height:56px;padding:10px 14px;font:inherit;font-weight:600;color:var(--ink);background:var(--tile);border:4px solid var(--line);box-shadow:inset 3px 3px 0 rgba(0,0,0,.12)}
+.stars{font-size:24px;font-weight:700;text-align:center;margin:0 0 20px}
+.task,.fav,.qbox{background:var(--tile);border:4px solid var(--line);box-shadow:4px 4px 0 var(--shadow);padding:16px;margin:0 8px 24px 0}
+.task .top{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.task .em{font-size:38px;line-height:1}
+.task b{font-size:19px;display:block;font-weight:700}
+.task span.d{display:block;font-size:16px;color:var(--ink-soft);font-weight:500}
+.trow{display:flex;flex-wrap:wrap;gap:18px}
+.qq{font-size:22px;font-weight:700;line-height:1.35;margin:6px 0 18px}
+.qopt{display:block;width:100%;text-align:left;margin:0 0 16px;min-height:60px;padding:12px 16px}
+.qopt.ok{background:var(--sel-bg);border-color:var(--sel-line)}
+.qopt.bad{background:#fbe0dd;border-style:dashed}
+:root[data-theme="dark"] .qopt.bad{background:#4a2420}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .qopt.bad{background:#4a2420}}
+.qfb{font-size:20px;font-weight:700;margin:4px 0 16px}
+.empty{font-weight:600;color:var(--ink-soft)}
+
+details.help{margin:0 6px 30px 0;background:var(--card);border:4px solid var(--line);box-shadow:6px 6px 0 var(--shadow);padding:6px 20px}
+details.help summary{font-size:20px;font-weight:700;cursor:pointer;padding:14px 0}
+.help .stiles{margin-top:6px}
+.parents{font-size:15px;color:var(--ink-soft);padding-bottom:12px}
+.parents ul{margin:6px 0 0;padding-left:20px}
+.parents li{margin-bottom:6px}
+kbd{font-family:"JetBrains Mono",monospace;font-weight:700;background:var(--tile);border:2px solid var(--line);padding:0 6px}
+
+/* Befehlsleiste */
+.bar{
+  position:sticky;bottom:0;z-index:10;margin:0 -6px;
+  background:#1b1b1b;color:#fff;border:4px solid #000;
+  box-shadow:0 -6px 0 rgba(0,0,0,.15);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+}
+.bar-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.bar-head{font-size:16px;font-weight:700;color:#ffd24a}
+.bar-tools{display:flex;gap:10px}
+.bar .btn.small{background:#333;color:#fff;border-color:#000;box-shadow:3px 3px 0 #000;min-height:42px;padding:4px 12px;font-size:15px}
+.bar #barRows{max-height:34vh;overflow-y:auto}
+.bar-row{padding:8px 0}
+.bar-row + .bar-row{border-top:2px solid #3a3a3a}
+.lab{display:block;font-size:14px;font-weight:600;color:#bfc7d0;margin-bottom:2px}
+.cmd{display:block;font-family:"JetBrains Mono","Courier New",monospace;font-weight:800;font-size:23px;line-height:1.55;letter-spacing:0}
+#barRows.many .cmd{font-size:20px}
+.tk{display:inline-block;margin:0 .15em .05em 0}
+.k-cmd{color:#ffb62e}.k-num{color:#5ee7ff}.k-blk{color:#72f06b}.k-txt{color:#fff}
+.cmd.ph{font-family:"Lexend",system-ui,sans-serif;font-size:18px;font-weight:600;color:#cfd6dd}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:380px){
+  .menu{grid-template-columns:repeat(2,1fr)}
+  .palette{gap:22px 12px}
+}
+</style>
+</head>
+<body>
+<div class="grassband" aria-hidden="true"></div>
+<main>
+  <header>
+    <div class="logo"><img id="logo" alt="" width="56" height="56"><h1>Bau-Helfer</h1></div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Welches Minecraft?">
+        <button type="button" data-p="java" aria-pressed="true">🖥️ Java</button>
+        <button type="button" data-p="bedrock" aria-pressed="false">📱 Bedrock</button>
+      </div>
+      <button type="button" class="btn small" id="voiceBtn" aria-pressed="false" hidden>🔊 Vorlesen</button>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Bereiche">
+    <button type="button" class="tab" role="tab" id="tb-bauen" data-tab="bauen" aria-selected="true"><span class="ic" aria-hidden="true">⛏️</span>Bauen</button>
+    <button type="button" class="tab" role="tab" id="tb-kiste" data-tab="kiste" aria-selected="false"><span class="ic" aria-hidden="true">🎮</span>Befehle</button>
+    <button type="button" class="tab" role="tab" id="tb-spass" data-tab="spass" aria-selected="false"><span class="ic" aria-hidden="true">🎉</span>Spaß</button>
+  </div>
+
+  <div id="tab-bauen" role="tabpanel" aria-labelledby="tb-bauen">
+    <section class="panel" aria-labelledby="h-was">
+      <div class="sec-head"><span class="badge">1</span><h2 id="h-was">Was baust du?</h2></div>
+      <div class="tiles" id="shapes">
+        <button type="button" class="tile" data-shape="floor" aria-pressed="true">
+          <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="1" y="5" width="14" height="3" fill="#5fa231"/><rect x="1" y="8" width="14" height="4" fill="#866043"/>
+            <rect x="3" y="5" width="2" height="1" fill="#7fc24a"/><rect x="9" y="6" width="3" height="1" fill="#4c8a24"/>
+            <rect x="4" y="9" width="2" height="1" fill="#6e4d33"/><rect x="10" y="10" width="2" height="1" fill="#9a7351"/>
+          </svg>
+          <b>Fläche</b>
+        </button>
+        <button type="button" class="tile" data-shape="tunnel" aria-pressed="false">
+          <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="1" y="1" width="14" height="3" fill="#808080"/><rect x="1" y="4" width="3" height="9" fill="#707070"/>
+            <rect x="12" y="4" width="3" height="9" fill="#707070"/><rect x="4" y="4" width="8" height="9" fill="#1a1a1a"/>
+            <rect x="1" y="13" width="14" height="2" fill="#5fa231"/>
+            <rect x="2" y="2" width="2" height="1" fill="#9a9a9a"/><rect x="2" y="7" width="1" height="2" fill="#8c8c8c"/>
+          </svg>
+          <b>Gang</b>
+        </button>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-block">
+      <div class="sec-head"><span class="badge">2</span><h2 id="h-block">Welcher Block?</h2></div>
+      <div class="palette" id="palette"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-size">
+      <div class="sec-head"><span class="badge">3</span><h2 id="h-size">Wie groß?</h2></div>
+      <div class="opts" id="views" role="group" aria-label="Ansicht" style="justify-content:center">
+        <button type="button" class="btn" data-view="top" aria-pressed="true">⬇️ Von oben</button>
+        <button type="button" class="btn" data-view="side" aria-pressed="false">➡️ Von der Seite</button>
+      </div>
+      <p class="hint" style="text-align:center">👆 Tippe aufs Feld</p>
+
+      <div class="field-wrap" id="fieldTop">
+        <div class="grid" id="grid" role="group" aria-label="Bauplan von oben. Du stehst unten in der Mitte."></div>
+        <div class="player-row" id="playerRow"></div>
+      </div>
+      <div class="field-wrap" id="fieldSide" hidden>
+        <div class="side" id="side" role="group" aria-label="Seitenansicht. Du stehst links, gebaut wird nach rechts."></div>
+      </div>
+
+      <p class="sr" id="status" aria-live="polite"></p>
+      <div class="steppers">
+        <div class="stepper">
+          <span class="name" id="lbl-w">Breite</span>
+          <div class="row">
+            <button type="button" class="btn step-btn" id="w-minus" aria-label="Breite kleiner">−</button>
+            <span class="value" id="w-val" aria-labelledby="lbl-w">5</span>
+            <button type="button" class="btn step-btn" id="w-plus" aria-label="Breite größer">+</button>
+          </div>
+        </div>
+        <div class="stepper">
+          <span class="name" id="lbl-l">Länge</span>
+          <div class="row">
+            <button type="button" class="btn step-btn" id="l-minus" aria-label="Länge kleiner">−</button>
+            <span class="value" id="l-val" aria-labelledby="lbl-l">5</span>
+            <button type="button" class="btn step-btn" id="l-plus" aria-label="Länge größer">+</button>
+          </div>
+        </div>
+        <div class="stepper">
+          <span class="name" id="lbl-h">Höhe</span>
+          <div class="row">
+            <button type="button" class="btn step-btn" id="h-minus" aria-label="Höhe kleiner">−</button>
+            <span class="value" id="h-val" aria-labelledby="lbl-h">1</span>
+            <button type="button" class="btn step-btn" id="h-plus" aria-label="Höhe größer">+</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-where">
+      <div class="sec-head"><span class="badge">4</span><h2 id="h-where">Wo?</h2></div>
+      <div class="tiles where" id="where">
+        <button type="button" class="tile" data-base="0" aria-pressed="true">
+          <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="0" y="10" width="16" height="2" fill="#5fa231"/><rect x="0" y="12" width="16" height="4" fill="#866043"/>
+            <rect x="4" y="4" width="8" height="6" fill="#9a9a9a"/><rect x="4" y="4" width="8" height="1" fill="#c4c4c4"/><rect x="4" y="9" width="8" height="1" fill="#6e6e6e"/>
+          </svg>
+          <b>Obendrauf</b>
+        </button>
+        <button type="button" class="tile" data-base="-1" aria-pressed="false">
+          <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="0" y="8" width="16" height="2" fill="#5fa231"/><rect x="0" y="10" width="16" height="6" fill="#866043"/>
+            <rect x="4" y="8" width="8" height="4" fill="#9a9a9a"/><rect x="4" y="8" width="8" height="1" fill="#c4c4c4"/><rect x="4" y="11" width="8" height="1" fill="#6e6e6e"/>
+          </svg>
+          <b>Im Boden</b>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" id="tab-kiste" role="tabpanel" aria-labelledby="tb-kiste" hidden>
+    <div id="kisteBody"></div>
+  </section>
+
+  <section class="panel" id="tab-spass" role="tabpanel" aria-labelledby="tb-spass" hidden>
+    <div id="funBody"></div>
+  </section>
+
+  <details class="help">
+    <summary>❓ Hilfe</summary>
+    <div class="stiles">
+      <div class="stile"><span class="sn">1</span><span class="se">🧍</span><span class="st">Hinstellen und nach vorne schauen</span></div>
+      <div class="stile"><span class="sn">2</span><span class="se">⌨️</span><span class="st">T drücken</span></div>
+      <div class="stile"><span class="sn">3</span><span class="se">✍️</span><span class="st">Befehl abtippen</span></div>
+      <div class="stile"><span class="sn">4</span><span class="se">↵</span><span class="st">Enter drücken</span></div>
+    </div>
+    <div class="parents">
+      <b>Für Eltern</b>
+      <ul>
+        <li>Der Kreativmodus oder „Cheats an“ wird gebraucht.</li>
+        <li>Deutsche Tastatur: Für das Zeichen <kbd>^</kbd> erst <kbd>^</kbd>, dann Leertaste drücken.</li>
+        <li>Falsch gebaut? Block „Wegmachen“ mit derselben Größe an derselben Stelle.</li>
+        <li>Zeilen für den Befehlsblock werden ohne Schrägstrich eingetragen.</li>
+        <li>Java ab 1.21.11 nutzt neue Spielregel-Namen. Bei älterem Java heißen sie <kbd>keepInventory</kbd>, <kbd>mobGriefing</kbd>, <kbd>doDaylightCycle</kbd>.</li>
+        <li>Gemerkte Befehle und Sterne liegen nur in diesem Browser.</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="bar" role="region" aria-label="Dein Befehl">
+    <div class="bar-top">
+      <span class="bar-head" id="barHead">⌨️ Abtippen</span>
+      <span class="bar-tools">
+        <button type="button" class="btn small" id="speakBtn" aria-label="Vorlesen" hidden>🔊</button>
+        <button type="button" class="btn small" id="saveBtn">⭐ Merken</button>
+      </span>
+    </div>
+    <div id="barRows"></div>
+  </div>
+</main>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<script>
+(function(){
+  var N = 15, C = 7, SC = 16, SR = 13;
+
+  /* ---------- Speicher (geht auch ohne) ---------- */
+  function load(k, d){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function save(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  /* ---------- Vorlesen ---------- */
+  var synth = window.speechSynthesis;
+  var voiceOk = !!synth && typeof window.SpeechSynthesisUtterance !== 'undefined';
+  var voiceOn = voiceOk && load('bauhelfer.voice', false);
+  function speak(t){
+    if (!voiceOk || !t) return;
+    try { synth.cancel(); var u = new SpeechSynthesisUtterance(t); u.lang = 'de-DE'; u.rate = 0.9; synth.speak(u); } catch (e) {}
+  }
+  function say(t){ if (voiceOn) speak(t); }
+  var sayTimer;
+  function sayLater(t){ if (!voiceOn) return; clearTimeout(sayTimer); sayTimer = setTimeout(function(){ speak(t); }, 600); }
+
+  /* ---------- Texturen (16x16 Pixel, selbst gemalt) ---------- */
+  function rng(seed){
+    return function(){
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function cl(v){ return Math.max(0, Math.min(255, Math.round(v))); }
+  function newCanvas(){ var c = document.createElement('canvas'); c.width = 16; c.height = 16; return c; }
+  function dot(g, x, y, rgb, v){ v = v || 0; g.fillStyle = 'rgb(' + cl(rgb[0]+v) + ',' + cl(rgb[1]+v) + ',' + cl(rgb[2]+v) + ')'; g.fillRect(x, y, 1, 1); }
+  function noise(g, base, amp, r){ for (var y = 0; y < 16; y++) for (var x = 0; x < 16; x++) dot(g, x, y, base, (r() - 0.5) * amp * 2); }
+  function makeTex(id, kind){
+    var c = newCanvas(), g = c.getContext('2d'), r = rng(id.length * 977 + (kind === 'icon' ? 5 : 1)), x, y;
+    switch (id){
+      case 'grass_block':
+        if (kind === 'top'){ noise(g, [95,160,50], 20, r); }
+        else {
+          noise(g, [134,96,67], 16, r);
+          for (x = 0; x < 16; x++){ var d = 3 + (r() < 0.45 ? 1 : 0) + (r() < 0.15 ? 1 : 0); for (y = 0; y < d; y++) dot(g, x, y, [95,160,50], (r()-0.5)*30); }
+        }
+        break;
+      case 'dirt': noise(g, [134,96,67], 16, r); for (var i = 0; i < 14; i++) dot(g, Math.floor(r()*16), Math.floor(r()*16), [90,62,40], 0); break;
+      case 'stone': noise(g, [128,128,128], 14, r); for (var j = 0; j < 22; j++) dot(g, Math.floor(r()*16), Math.floor(r()*16), [100,100,100], 0); break;
+      case 'oak_planks':
+        noise(g, [162,130,78], 8, r);
+        for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) if (y % 4 === 3) dot(g, x, y, [110,84,46], 0);
+        for (var row = 0; row < 4; row++){ var jx = row % 2 ? 4 : 11; for (y = row*4; y < row*4+3; y++) dot(g, jx, y, [120,92,52], 0); }
+        break;
+      case 'sand': noise(g, [219,207,163], 9, r); for (var k2 = 0; k2 < 10; k2++) dot(g, Math.floor(r()*16), Math.floor(r()*16), [190,176,130], 0); break;
+      case 'glass':
+        noise(g, [196,232,242], 5, r);
+        for (x = 0; x < 16; x++){ dot(g, x, 0, [240,252,255]); dot(g, x, 15, [240,252,255]); dot(g, 0, x, [240,252,255]); dot(g, 15, x, [240,252,255]); }
+        for (var s = 0; s < 4; s++){ dot(g, 3+s, 3+s, [255,255,255]); dot(g, 3+s, 4+s, [235,250,255]); }
+        dot(g, 10, 8, [255,255,255]); dot(g, 11, 9, [255,255,255]);
+        break;
+      case 'water':
+        noise(g, [45,90,215], 12, r);
+        for (var w = 0; w < 6; w++){ var wy = Math.floor(r()*16), wx = Math.floor(r()*12); for (x = 0; x < 3; x++) dot(g, wx+x, wy, [90,140,245], 0); }
+        break;
+      case 'gold_block':
+        noise(g, [250,214,60], 8, r);
+        for (x = 0; x < 16; x++){ dot(g, x, 0, [255,240,140]); dot(g, 0, x, [255,240,140]); dot(g, x, 15, [205,150,25]); dot(g, 15, x, [205,150,25]); }
+        for (x = 2; x < 14; x++){ dot(g, x, 2, [255,236,120]); dot(g, x, 13, [225,175,35]); }
+        break;
+      case 'diamond_block':
+        noise(g, [95,215,205], 9, r);
+        for (x = 0; x < 16; x++){ dot(g, x, 0, [190,255,250]); dot(g, 0, x, [190,255,250]); dot(g, x, 15, [50,150,150]); dot(g, 15, x, [50,150,150]); }
+        for (x = 2; x < 14; x++){ dot(g, x, 2, [160,245,238]); dot(g, x, 13, [70,175,175]); }
+        break;
+      case 'red_wool': noise(g, [165,45,40], 9, r); break;
+      case 'blue_wool': noise(g, [52,66,170], 9, r); break;
+      case 'air':
+        for (y = 0; y < 16; y++) for (x = 0; x < 16; x++){ var on = ((x >> 2) + (y >> 2)) % 2 === 0; dot(g, x, y, on ? [245,245,245] : [205,205,205]); }
+        if (kind === 'icon') for (var q = 2; q < 14; q++){ dot(g, q, q, [200,50,50]); dot(g, q+1, q, [200,50,50]); dot(g, 15-q, q, [200,50,50]); dot(g, 14-q, q, [200,50,50]); }
+        break;
+    }
+    return c.toDataURL();
+  }
+  var BLOCKS = [
+    { id: 'grass_block', name: 'Gras' }, { id: 'dirt', name: 'Erde' }, { id: 'stone', name: 'Stein' }, { id: 'oak_planks', name: 'Holz' },
+    { id: 'sand', name: 'Sand' }, { id: 'glass', name: 'Glas' }, { id: 'water', name: 'Wasser' }, { id: 'gold_block', name: 'Gold' },
+    { id: 'diamond_block', name: 'Diamant' }, { id: 'red_wool', name: 'Rote Wolle' }, { id: 'blue_wool', name: 'Blaue Wolle' }, { id: 'air', name: 'Wegmachen' }
+  ];
+  BLOCKS.forEach(function(b){ b.top = makeTex(b.id, 'top'); b.icon = makeTex(b.id, 'icon'); });
+  function blockById(id){ return BLOCKS.filter(function(b){ return b.id === id; })[0]; }
+  function bname(id){ var b = blockById(id); return b ? b.name : id; }
+  document.documentElement.style.setProperty('--gtex', 'url(' + BLOCKS[0].icon + ')');
+
+  /* ---------- Steve ---------- */
+  function pixelMap(map, col){
+    var h = map.length, w = map[0].length, c = document.createElement('canvas'); c.width = w; c.height = h;
+    var g = c.getContext('2d');
+    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++){ var kk = map[y][x]; if (kk === '.') continue; g.fillStyle = col[kk]; g.fillRect(x, y, 1, 1); }
+    return c.toDataURL();
+  }
+  var STEVE_COL = { H:'#4a3320', S:'#c68c64', W:'#ffffff', B:'#3b3fa0', N:'#a8694a', M:'#5a3a26', T:'#00a8a8', L:'#3a3a8c', G:'#6b6b6b' };
+  var FACE = ['HHHHHHHH','HHHHHHHH','HSSSSSSH','SSSSSSSS','SWBSSBWS','SSSNNSSS','SSMMMMSS','SSMSSMSS'];
+  var BODY = FACE.concat(['SSTTTTSS','SSTTTTSS','SSTTTTSS','SSTTTTSS','.LLLLLL.','.LLLLLL.','.LLLLLL.','.GGGGGG.']);
+  var FACE_URL = pixelMap(FACE, STEVE_COL), BODY_URL = pixelMap(BODY, STEVE_COL);
+  document.getElementById('logo').src = FACE_URL;
+
+  /* ---------- Zustand ---------- */
+  var state = { shape: 'floor', block: 'grass_block', w: 5, l: 5, h: 1, base: 0, platform: 'java',
+                cat: null, sub: null, pick: null, tab: 'bauen', view: 'top' };
+  function isFloor(){ return state.shape === 'floor'; }
+  function maxW(){ return isFloor() ? 15 : 13; }
+  function maxH(){ return isFloor() ? 12 : 10; }
+  function fit(){ state.w = clamp(state.w, 1, maxW()); state.h = clamp(state.h, 1, maxH()); state.l = clamp(state.l, 1, N); }
+
+  /* ---------- Aufbau Bau-Tab ---------- */
+  var grid = document.getElementById('grid'), cells = [];
+  for (var r = 0; r < N; r++){
+    cells.push([]);
+    for (var c = 0; c < N; c++){
+      var d = document.createElement('div'); d.className = 'cell' + ((r + c) % 2 ? ' alt' : '');
+      grid.appendChild(d); cells[r].push(d);
+    }
+  }
+  var prow = document.getElementById('playerRow');
+  for (var pc = 0; pc < N; pc++){
+    var pd = document.createElement('div'); pd.className = 'cell' + (pc % 2 ? '' : ' alt');
+    if (pc === C){ pd.classList.add('me'); var im = document.createElement('img'); im.src = FACE_URL; im.alt = 'Du'; pd.appendChild(im); }
+    prow.appendChild(pd);
+  }
+  var side = document.getElementById('side'), scells = [];
+  for (var sr = 0; sr < SR; sr++){
+    scells.push([]);
+    for (var sc = 0; sc < SC; sc++){
+      var sd = document.createElement('div'); sd.className = 'scell' + (sr === SR - 1 ? ' ground' : '');
+      side.appendChild(sd); scells[sr].push(sd);
+    }
+  }
+  var sb = document.createElement('img'); sb.className = 'steve-body'; sb.src = BODY_URL; sb.alt = ''; side.appendChild(sb);
+
+  var palette = document.getElementById('palette');
+  BLOCKS.forEach(function(b){
+    var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'slot-btn'; btn.dataset.id = b.id;
+    btn.innerHTML = '<span class="slot"><i style="background-image:url(' + b.icon + ')"></i></span><span class="lbl">' + b.name + '</span>';
+    palette.appendChild(btn);
+  });
+
+  /* ---------- Befehle ---------- */
+  function n(v){ return '^' + v; }
+  function fillParts(x1, y1, z1, x2, y2, z2, block){ return ['/fill', n(x1), n(y1), n(z1), n(x2), n(y2), n(z2), block]; }
+  function geometry(){ var a = Math.floor(state.w / 2); return { a: a, b: state.w - 1 - a }; }
+  function commands(){
+    var g = geometry(), a = g.a, b = g.b, l = state.l, h = state.h, y = state.base, blk = state.block;
+    if (isFloor()) return [{ label: '', parts: fillParts(-b, y, 1, a, y + h - 1, l, blk) }];
+    return [
+      { label: '1  🧱 Mauern', parts: fillParts(-(b + 1), y, 1, a + 1, y + h + 1, l, blk) },
+      { label: '2  🕳️ Ausräumen', parts: fillParts(-b, y + 1, 1, a, y + h, l, 'air') }
+    ];
+  }
+  function describe(){
+    var b = state.block === 'air' ? 'Luft' : bname(state.block);
+    if (isFloor()) return (state.h === 1 ? 'Fläche' : 'Klotz') + ' aus ' + b + ', ' + state.w + ' breit, ' + state.l + ' lang' + (state.h > 1 ? ', ' + state.h + ' hoch' : '');
+    return 'Gang aus ' + b + ', innen ' + state.w + ' breit, ' + state.h + ' hoch, ' + state.l + ' lang';
+  }
+
+  /* ---------- Ansichten ---------- */
+  var prev = null, cls = ['', 'on', 'wall', 'path'];
+  function topLayout(){
+    var g = geometry(), out = [];
+    for (var r = 0; r < N; r++){
+      out.push([]); var len = N - r;
+      for (var c = 0; c < N; c++){
+        var s = 0;
+        if (len <= state.l){
+          if (isFloor()){ if (c >= C - g.a && c <= C + g.b) s = 1; }
+          else { var L = C - g.a - 1, R = C + g.b + 1; if (c === L || c === R) s = 2; else if (c > L && c < R) s = 3; }
+        }
+        out[r].push(s);
+      }
+    }
+    return out;
+  }
+  function sideLayout(){
+    var out = [], l = state.l, h = state.h, base = state.base, top = base + h + 1;
+    for (var r = 0; r < SR; r++){
+      out.push([]); var y = 11 - r;
+      for (var c = 0; c < SC; c++){
+        var s = 0;
+        if (c >= 1 && c <= l){
+          if (isFloor()){ if (y >= base && y <= base + h - 1) s = 1; }
+          else if (y >= base && y <= top){ s = (y === base || y === top) ? 2 : 3; }
+        }
+        out[r].push(s);
+      }
+    }
+    return out;
+  }
+
+  var buildCmds = [];
+  function render(){
+    fit();
+    var b = blockById(state.block);
+    grid.style.setProperty('--tex', 'url(' + b.top + ')');
+    side.style.setProperty('--tex', 'url(' + b.top + ')');
+    side.style.setProperty('--gtex', 'url(' + BLOCKS[0].icon + ')');
+
+    var lay = topLayout();
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++){
+      var el = cells[r][c], s = lay[r][c];
+      el.classList.remove('on', 'wall', 'path');
+      if (s) el.classList.add(cls[s]);
+      if (s && prev && prev[r][c] === 0){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    }
+    prev = lay;
+    var sl = sideLayout();
+    for (var r2 = 0; r2 < SR; r2++) for (var c2 = 0; c2 < SC; c2++){
+      var e2 = scells[r2][c2], s2 = sl[r2][c2];
+      e2.classList.remove('on', 'wall', 'path'); if (s2) e2.classList.add(cls[s2]);
+    }
+
+    document.getElementById('w-val').textContent = state.w;
+    document.getElementById('l-val').textContent = state.l;
+    document.getElementById('h-val').textContent = state.h;
+    document.getElementById('w-minus').disabled = state.w <= 1;
+    document.getElementById('w-plus').disabled = state.w >= maxW();
+    document.getElementById('l-minus').disabled = state.l <= 1;
+    document.getElementById('l-plus').disabled = state.l >= N;
+    document.getElementById('h-minus').disabled = state.h <= 1;
+    document.getElementById('h-plus').disabled = state.h >= maxH();
+    document.getElementById('status').textContent = describe();
+
+    Array.prototype.forEach.call(document.querySelectorAll('#shapes .tile'), function(e){ e.setAttribute('aria-pressed', String(e.dataset.shape === state.shape)); });
+    Array.prototype.forEach.call(document.querySelectorAll('#where .tile'), function(e){ e.setAttribute('aria-pressed', String(e.dataset.base === String(state.base))); });
+    Array.prototype.forEach.call(document.querySelectorAll('#views .btn'), function(e){ e.setAttribute('aria-pressed', String(e.dataset.view === state.view)); });
+    Array.prototype.forEach.call(palette.children, function(e){ e.setAttribute('aria-pressed', String(e.dataset.id === state.block)); });
+    document.getElementById('fieldTop').hidden = state.view !== 'top';
+    document.getElementById('fieldSide').hidden = state.view !== 'side';
+
+    buildCmds = commands();
+    var hadPick = !!state.pick; state.pick = null;
+    renderBar();
+    if (hadPick){ renderKiste(); renderFun(); }
+  }
+
+  /* ---------- Befehlsleiste ---------- */
+  var BLK = /(_block|_wool|_planks)$|^(stone|dirt|sand|water|glass|air|bricks|sandstone)$/;
+  function tokens(text){
+    return text.split(' ').map(function(t, i){
+      var c = i === 0 ? 'k-cmd' : (/^[\^~]/.test(t) || /^-?\d+$/.test(t)) ? 'k-num' : BLK.test(t) ? 'k-blk' : 'k-txt';
+      return '<span class="tk ' + c + '">' + esc(t) + '</span>';
+    }).join(' ');
+  }
+  function ptitle(p){ return typeof p.t === 'function' ? p.t() : p.t; }
+  function barData(){
+    if (state.pick) return { head: '⌨️ ' + ptitle(state.pick), rows: state.pick.make(), save: true, say: ptitle(state.pick) };
+    if (state.tab === 'bauen') return { head: '⌨️ Abtippen', save: true, say: describe(),
+      rows: buildCmds.map(function(c){ return { label: c.label, text: c.parts.join(' ') }; }) };
+    return { head: '⌨️ Abtippen', rows: [{ label: '', text: '👆 Wähle etwas aus', ph: true }], save: false, say: 'Wähle etwas aus' };
+  }
+  function renderBar(){
+    var d = barData(), el = document.getElementById('barRows');
+    document.getElementById('barHead').textContent = d.head;
+    document.getElementById('saveBtn').hidden = !d.save;
+    el.classList.toggle('many', d.rows.length > 3);
+    el.innerHTML = d.rows.map(function(r){
+      return '<div class="bar-row">' + (r.label ? '<span class="lab">' + esc(r.label) + '</span>' : '') +
+        '<span class="cmd' + (r.ph ? ' ph' : '') + '">' + (r.ph ? esc(r.text) : tokens(r.text)) + '</span></div>';
+    }).join('');
+  }
+
+  /* ---------- Eingaben: Felder ---------- */
+  function rectInfo(el, e, cols, rows){
+    var rect = el.getBoundingClientRect(), bw = parseFloat(getComputedStyle(el).borderLeftWidth) || 0;
+    var x = e.clientX - rect.left - bw, y = e.clientY - rect.top - bw, iw = rect.width - bw * 2, ih = rect.height - bw * 2;
+    return { col: clamp(Math.floor(x / iw * cols), 0, cols - 1), row: clamp(Math.floor(y / ih * rows), 0, rows - 1) };
+  }
+  function changed(){ render(); sayLater(state.w + ' breit, ' + state.l + ' lang' + (state.h > 1 ? ', ' + state.h + ' hoch' : '')); }
+  function topPoint(e){
+    var q = rectInfo(grid, e, N, N), len = N - q.row, dist = Math.abs(q.col - C);
+    var w = isFloor() ? 2 * dist + 1 : Math.max(1, 2 * dist - 1);
+    var nw = clamp(w, 1, maxW()), nl = clamp(len, 1, N);
+    if (nw !== state.w || nl !== state.l){ state.w = nw; state.l = nl; changed(); }
+  }
+  function sidePoint(e){
+    var q = rectInfo(side, e, SC, SR), y = 11 - q.row;
+    var nl = q.col >= 1 ? q.col : state.l, nh = isFloor() ? y - state.base + 1 : y - state.base - 1;
+    nh = clamp(nh, 1, maxH()); nl = clamp(nl, 1, N);
+    if (nh !== state.h || nl !== state.l){ state.h = nh; state.l = nl; changed(); }
+  }
+  function drag(el, fn){
+    var on = false;
+    el.addEventListener('pointerdown', function(e){ on = true; try { el.setPointerCapture(e.pointerId); } catch (err) {} fn(e); });
+    el.addEventListener('pointermove', function(e){ if (on) fn(e); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(t){ el.addEventListener(t, function(){ on = false; }); });
+  }
+  drag(grid, topPoint); drag(side, sidePoint);
+
+  function bump(key, d){ state[key] += d; changed(); }
+  document.getElementById('w-minus').onclick = function(){ bump('w', -1); };
+  document.getElementById('w-plus').onclick  = function(){ bump('w', 1); };
+  document.getElementById('l-minus').onclick = function(){ bump('l', -1); };
+  document.getElementById('l-plus').onclick  = function(){ bump('l', 1); };
+  document.getElementById('h-minus').onclick = function(){ bump('h', -1); };
+  document.getElementById('h-plus').onclick  = function(){ bump('h', 1); };
+
+  document.getElementById('shapes').addEventListener('click', function(e){
+    var b = e.target.closest('.tile'); if (!b) return;
+    var wasFloor = isFloor(); state.shape = b.dataset.shape;
+    if (wasFloor !== isFloor()) state.h = isFloor() ? 1 : 3;
+    render(); say(isFloor() ? 'Fläche' : 'Gang');
+  });
+  document.getElementById('where').addEventListener('click', function(e){
+    var b = e.target.closest('.tile'); if (!b) return;
+    state.base = parseInt(b.dataset.base, 10); render(); say(state.base === 0 ? 'Obendrauf' : 'Im Boden');
+  });
+  document.getElementById('views').addEventListener('click', function(e){
+    var b = e.target.closest('.btn'); if (!b) return;
+    state.view = b.dataset.view; render();
+  });
+  palette.addEventListener('click', function(e){
+    var b = e.target.closest('.slot-btn'); if (!b) return;
+    state.block = b.dataset.id; render(); say(bname(state.block));
+  });
+
+  /* ---------- Befehle-Tab ---------- */
+  function eff(e, t, id, sec, amp){ return { e: e, t: t, c: { j: '/effect give @s ' + id + ' ' + sec + ' ' + amp, b: '/effect @s ' + id + ' ' + sec + ' ' + amp } }; }
+  function gr(e, t, jn, bn, v){ return { e: e, t: t, c: { j: '/gamerule ' + jn + ' ' + v, b: '/gamerule ' + bn + ' ' + v } }; }
+  function plain(e, t, c, only){ var o = { e: e, t: t, c: c }; if (only) o.only = only; return o; }
+  var CATS = [
+    { id: 'zeit', e: '🕒', n: 'Zeit' }, { id: 'wetter', e: '🌦️', n: 'Wetter' },
+    { id: 'modus', e: '🎮', n: 'Spielmodus' }, { id: 'kraefte', e: '🦸', n: 'Superkräfte' }
+  ];
+  var KISTE = {
+    zeit: [
+      plain('☀️', 'Tag', '/time set day'), plain('🌞', 'Mittag', '/time set noon'), plain('🌇', 'Abend', '/time set 12000'),
+      plain('🌙', 'Nacht', '/time set night'), plain('🌌', 'Mitternacht', '/time set midnight'), plain('🌅', 'Morgen', '/time set 23000'),
+      gr('⏸️', 'Zeit anhalten', 'advance_time', 'dodaylightcycle', 'false'), gr('▶️', 'Zeit läuft', 'advance_time', 'dodaylightcycle', 'true')
+    ],
+    wetter: [
+      plain('🌤️', 'Sonne', '/weather clear'), plain('🌧️', 'Regen', '/weather rain'), plain('⛈️', 'Gewitter', '/weather thunder'),
+      plain('⚡', 'Blitz', '/summon lightning_bolt ^0 ^0 ^8')
+    ],
+    modus: [
+      plain('🛠️', 'Kreativ', '/gamemode creative'), plain('❤️', 'Überleben', '/gamemode survival'), plain('🧭', 'Abenteuer', '/gamemode adventure'),
+      plain('👻', 'Zuschauer', '/gamemode spectator', 'java'), plain('🕊️', 'Keine Monster', '/difficulty peaceful'), plain('🧟', 'Monster an', '/difficulty normal'),
+      gr('🎒', 'Nichts verlieren', 'keep_inventory', 'keepinventory', 'true'), gr('🌱', 'Creeper brav', 'mob_griefing', 'mobgriefing', 'false')
+    ],
+    kraefte: [
+      eff('💨', 'Superschnell', 'speed', 300, 3), eff('🦘', 'Hochspringen', 'jump_boost', 300, 5), eff('🔦', 'Nachtsicht', 'night_vision', 600, 0),
+      eff('🫥', 'Unsichtbar', 'invisibility', 300, 0), eff('💖', 'Heilen', 'instant_health', 1, 5), eff('🪶', 'Federfall', 'slow_falling', 300, 0),
+      eff('🫧', 'Unter Wasser', 'water_breathing', 600, 0), eff('✨', 'Leuchten', 'glowing', 300, 0), eff('💪', 'Superstark', 'strength', 300, 3),
+      eff('⛏️', 'Schnell abbauen', 'haste', 300, 3), eff('🛡️', 'Unverwundbar', 'resistance', 300, 4),
+      { e: '🧼', t: 'Kräfte weg', c: { j: '/effect clear @s', b: '/effect @s clear' } }
+    ]
+  };
+  var shown = [];
+  function pickCmd(i){ return typeof i.c === 'string' ? i.c : i.c[state.platform === 'java' ? 'j' : 'b']; }
+  function tileH(act, attrs, emoji, label, pressed){
+    return '<button type="button" class="tile" data-act="' + act + '" ' + attrs + ' aria-pressed="' + pressed + '"><span class="em" aria-hidden="true">' + emoji + '</span><b>' + esc(label) + '</b></button>';
+  }
+  function renderKiste(){
+    var h = '', el = document.getElementById('kisteBody');
+    if (!state.cat){
+      h += '<div class="sec-head"><span class="em" style="font-size:34px">🎮</span><h2>Befehle</h2></div><div class="menu m2">' +
+        CATS.map(function(ct){ return tileH('cat', 'data-id="' + ct.id + '"', ct.e, ct.n, false); }).join('') + '</div>';
+    } else {
+      var ct = CATS.filter(function(x){ return x.id === state.cat; })[0];
+      shown = KISTE[state.cat].filter(function(i){ return !i.only || i.only === state.platform; });
+      h += '<div class="back-row"><button type="button" class="btn" data-act="back">← Zurück</button><h2>' + ct.e + ' ' + ct.n + '</h2></div><div class="cards">' +
+        shown.map(function(i, k){ return tileH('kcard', 'data-i="' + k + '"', i.e, i.t, !!(state.pick && state.pick.src === i)); }).join('') + '</div>';
+    }
+    el.innerHTML = h;
+  }
+  document.getElementById('kisteBody').addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    var act = b.dataset.act;
+    if (act === 'cat'){ state.cat = b.dataset.id; state.pick = null; renderBar(); renderKiste(); say(CATS.filter(function(x){ return x.id === state.cat; })[0].n); }
+    else if (act === 'back'){ state.cat = null; state.pick = null; renderBar(); renderKiste(); }
+    else if (act === 'kcard'){
+      var item = shown[parseInt(b.dataset.i, 10)];
+      state.pick = { t: item.t, src: item, make: function(){ return [{ label: '', text: pickCmd(item) }]; } };
+      renderBar(); renderKiste(); say(item.t);
+    }
+  });
+
+  /* ---------- Spaß-Tab ---------- */
+  var favs = load('bauhelfer.favs', []), done = load('bauhelfer.done', []), best = load('bauhelfer.best', 0);
+  var F = { rbOri: 'floor', pyKind: 'pyramid', pyBlock: 'stone', stA: 'red_wool', stB: 'blue_wool', welcome: 'Willkommen in meinem Reich!' };
+  var V = { rbN: 7, rbT: 1, pyN: 7, stN: 6, pdW: 5, pdL: 5, pdD: 1, stW: 5, stL: 8 };
+  var LIM = { rbN: [3, 15, 1], rbT: [1, 2, 1], pyN: [3, 15, 2], stN: [2, 10, 1], pdW: [1, 11, 1], pdL: [1, 11, 1], pdD: [1, 3, 1], stW: [1, 15, 1], stL: [2, 12, 1] };
+  var SUBS = [
+    { id: 'knoepfe', e: '🔘', n: 'Knöpfe' }, { id: 'felder', e: '✨', n: 'Felder' }, { id: 'schild', e: '🪧', n: 'Schild' },
+    { id: 'disco', e: '🪩', n: 'Disco' }, { id: 'regenbogen', e: '🌈', n: 'Regenbogen' }, { id: 'pyramide', e: '🔺', n: 'Pyramide' },
+    { id: 'teich', e: '💧', n: 'Teich' }, { id: 'streifen', e: '🦓', n: 'Streifen' }, { id: 'aufgaben', e: '⭐', n: 'Aufgaben' },
+    { id: 'raetsel', e: '❓', n: 'Rätsel' }, { id: 'meine', e: '💾', n: 'Meine' }
+  ];
+  function fl(x1, y1, z1, x2, y2, z2, block){ return fillParts(x1, y1, z1, x2, y2, z2, block).join(' '); }
+  function fx(id, sec, amp){ return (state.platform === 'java' ? 'effect give @p ' : 'effect @p ') + id + ' ' + sec + ' ' + amp; }
+  function kk(s){ return function(){ return s; }; }
+
+  function blockRows(text, kind){
+    var rows = [{ label: '🟧 Befehlsblock holen', text: '/give @s command_block' }];
+    if (kind === 'knopf') rows.push({ label: '🔘 Knopf holen', text: '/give @s stone_button' });
+    if (kind === 'platte') rows.push({ label: '⬜ Druckplatte holen', text: '/give @s stone_pressure_plate' });
+    rows.push({ label: '📝 Befehl eintragen (ohne /)', text: text });
+    return rows;
+  }
+  var ZAUBER = [
+    { e: '☀️', t: 'Tag', c: kk('time set day') }, { e: '🌙', t: 'Nacht', c: kk('time set night') },
+    { e: '🌧️', t: 'Regen', c: kk('weather rain') }, { e: '🌤️', t: 'Sonne', c: kk('weather clear') },
+    { e: '⛈️', t: 'Gewitter', c: kk('weather thunder') },
+    { e: '💨', t: 'Superschnell', c: function(){ return fx('speed', 30, 3); } },
+    { e: '🔦', t: 'Nachtsicht', c: function(){ return fx('night_vision', 60, 0); } },
+    { e: '🦘', t: 'Hochspringen', c: function(){ return fx('jump_boost', 30, 4); } }
+  ];
+  var FELDER = [
+    { e: '🦘', t: 'Sprungfeld', c: function(){ return fx('jump_boost', 2, 6); } },
+    { e: '💨', t: 'Schnell-Feld', c: function(){ return fx('speed', 5, 4); } },
+    { e: '💖', t: 'Heil-Feld', c: function(){ return fx('instant_health', 1, 3); } },
+    { e: '✨', t: 'Leucht-Feld', c: function(){ return fx('glowing', 5, 0); } }
+  ];
+  var DISCO = [
+    { e: '🌅', t: 'Sonnen-Wanderung', c: kk('time add 20') },
+    { e: '🪩', t: 'Disco-Himmel', c: kk('time add 100') }
+  ];
+  var RB = [['🟥 Rot', 'red_wool'], ['🟧 Orange', 'orange_wool'], ['🟨 Gelb', 'yellow_wool'], ['🟩 Grün', 'lime_wool'], ['🔹 Hellblau', 'light_blue_wool'], ['🟦 Blau', 'blue_wool'], ['🟪 Lila', 'purple_wool']];
+  function rainbowRows(){
+    var nn = V.rbN, t = V.rbT, rows = [];
+    if (F.rbOri === 'floor'){
+      var W = 7 * t, a = Math.floor(W / 2);
+      RB.forEach(function(c, i){ var xs = a - i * t, xe = xs - t + 1; rows.push({ label: c[0], text: fl(xs, -1, 1, xe, -1, nn, c[1]) }); });
+    } else {
+      var a2 = Math.floor(nn / 2), b2 = nn - 1 - a2;
+      RB.forEach(function(c, i){ var ys = (6 - i) * t; rows.push({ label: c[0], text: fl(-b2, ys, 2, a2, ys + t - 1, 2, c[1]) }); });
+    }
+    return rows;
+  }
+  function pyramidRows(){
+    var blk = F.pyBlock, rows = [], i;
+    if (F.pyKind === 'pyramid'){
+      var nn = V.pyN, layers = (nn + 1) / 2, zc = 1 + (nn - 1) / 2;
+      for (i = 0; i < layers; i++){ var half = (nn - 1) / 2 - i; rows.push({ label: '🔺 Schicht ' + (i + 1), text: fl(-half, i, zc - half, half, i, zc + half, blk) }); }
+    } else {
+      for (i = 0; i < V.stN; i++) rows.push({ label: '🪜 Stufe ' + (i + 1), text: fl(-1, 0, 1 + i, 1, i, 1 + i, blk) });
+    }
+    return rows;
+  }
+  function pondRows(){
+    var w = V.pdW, l = V.pdL, d = V.pdD, a = Math.floor(w / 2), b = w - 1 - a;
+    return [
+      { label: '1  🏖️ Sandrand', text: fl(-(b + 1), -d, 1, a + 1, -1, l + 2, 'sand') },
+      { label: '2  💧 Wasser', text: fl(-b, -d, 2, a, -1, l + 1, 'water') }
+    ];
+  }
+  function stripeRows(){
+    var w = V.stW, l = V.stL, a = Math.floor(w / 2), b = w - 1 - a, z;
+    var rows = [{ label: '🟫 Boden aus ' + bname(F.stA), text: fl(-b, -1, 1, a, -1, l, F.stA) }];
+    for (z = 2; z <= l; z += 2) rows.push({ label: '🦓 Streifen aus ' + bname(F.stB), text: fl(-b, -1, z, a, -1, z, F.stB) });
+    return rows;
+  }
+  function welcomeRows(){
+    var txt = String(F.welcome).replace(/["\\{}§]/g, '').trim() || 'Hallo!';
+    return blockRows(state.platform === 'java' ? 'title @p title "' + txt + '"' : 'title @p title ' + txt, 'platte');
+  }
+  var AUTO = {
+    schild: { t: 'Schild', make: welcomeRows }, regenbogen: { t: 'Regenbogen', make: rainbowRows },
+    pyramide: { t: function(){ return F.pyKind === 'pyramid' ? 'Pyramide' : 'Treppe'; }, make: pyramidRows },
+    teich: { t: 'Teich', make: pondRows }, streifen: { t: 'Streifen', make: stripeRows }
+  };
+
+  var TASKS = [
+    { id: 't1', e: '🟩', t: 'Gras-Wiese', d: 'Fläche aus Gras, 6 × 6', build: { shape: 'floor', block: 'grass_block', w: 6, l: 6, h: 1 } },
+    { id: 't2', e: '🚇', t: 'Stein-Gang', d: 'Gang aus Stein, 3 breit, 8 lang', build: { shape: 'tunnel', block: 'stone', w: 3, l: 8, h: 3 } },
+    { id: 't3', e: '🟨', t: 'Gold-Klotz', d: 'Klotz aus Gold, 4 × 4 × 4', build: { shape: 'floor', block: 'gold_block', w: 4, l: 4, h: 4 } },
+    { id: 't4', e: '🗼', t: 'Holz-Turm', d: 'Turm aus Holz, 3 × 3, 12 hoch', build: { shape: 'floor', block: 'oak_planks', w: 3, l: 3, h: 12 } },
+    { id: 't5', e: '💧', t: 'Teich', d: 'Teich mit Sandrand', go: 'teich' },
+    { id: 't6', e: '🌈', t: 'Regenbogen', d: 'Regenbogen am Boden', go: 'regenbogen' },
+    { id: 't7', e: '🌙', t: 'Nacht-Knopf', d: 'Knopf, der Nacht macht', go: 'knoepfe' },
+    { id: 't8', e: '🔺', t: 'Pyramide', d: 'Pyramide aus Stein', go: 'pyramide' }
+  ];
+  var QUIZ = [
+    { q: 'Was bedeutet ^0 ^0 ^5 ?', a: ['5 Blöcke nach vorne', '5 Blöcke nach hinten', '5 Blöcke nach oben'], c: 0 },
+    { q: 'Die drei Zahlen heißen der Reihe nach …', a: ['seitlich, hoch, vorwärts', 'vorwärts, hoch, seitlich', 'hoch, vorwärts, seitlich'], c: 0 },
+    { q: 'Was bedeutet ^0 ^3 ^0 ?', a: ['3 Blöcke nach unten', '3 Blöcke nach oben', '3 Blöcke nach vorne'], c: 1 },
+    { q: 'Wohin zeigt ^-2 ^0 ^0 ?', a: ['2 Blöcke nach links', '2 Blöcke nach vorne', '2 Blöcke nach rechts'], c: 2 },
+    { q: 'Wohin zeigt ^4 ^0 ^0 ?', a: ['4 Blöcke nach links', '4 Blöcke nach rechts', '4 Blöcke nach hinten'], c: 0 },
+    { q: 'Welcher Block ist ^0 ^-1 ^0 ?', a: ['Der Block über deinem Kopf', 'Der Block unter deinen Füßen', 'Der Block hinter dir'], c: 1 },
+    { q: 'Ein Boden ist 5 breit. Was passt für „seitlich“?', a: ['von ^-2 bis ^2', 'von ^0 bis ^5', 'von ^-5 bis ^5'], c: 0 },
+    { q: 'Was macht /fill?', a: ['Es füllt einen Bereich mit Blöcken.', 'Es macht es Nacht.', 'Es holt ein Tier.'], c: 0 },
+    { q: 'Was macht der Block „air“ (Luft)?', a: ['Die Blöcke verschwinden.', 'Es kommt Wind.', 'Es regnet.'], c: 0 },
+    { q: 'Ecke 1 und Ecke 2 sind …', a: ['zwei gegenüberliegende Ecken', 'zwei Blöcke nebeneinander', 'zwei Tiere'], c: 0 }
+  ];
+  var QZ = { i: 0, score: 0, opts: [], picked: null, done: false };
+  function shuffle(arr){ for (var i = arr.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
+  function newQ(){ QZ.opts = shuffle(QUIZ[QZ.i].a.map(function(t, k){ return { t: t, k: k }; })); QZ.picked = null; }
+  newQ();
+  function quizText(){ return QUIZ[QZ.i].q + '. ' + QZ.opts.map(function(o, i){ return (i + 1) + ': ' + o.t; }).join('. '); }
+
+  function btnH(act, attrs, text, extra){ return '<button type="button" class="btn ' + (extra || '') + '" data-act="' + act + '" ' + (attrs || '') + '>' + text + '</button>'; }
+  function stp(label, key){
+    var v = V[key], L = LIM[key];
+    return '<div class="stepper"><span class="name">' + label + '</span><div class="row">' +
+      '<button type="button" class="btn step-btn" data-act="step" data-v="' + key + '" data-d="-1" aria-label="' + label + ' kleiner"' + (v <= L[0] ? ' disabled' : '') + '>−</button>' +
+      '<span class="value">' + v + '</span>' +
+      '<button type="button" class="btn step-btn" data-act="step" data-v="' + key + '" data-d="1" aria-label="' + label + ' größer"' + (v >= L[1] ? ' disabled' : '') + '>+</button></div></div>';
+  }
+  function togH(act, val, text, pressed){ return '<button type="button" class="btn" data-act="' + act + '" data-val="' + val + '" aria-pressed="' + pressed + '">' + text + '</button>'; }
+  function stepsH(list){
+    return '<div class="stiles">' + list.map(function(s, i){ return '<div class="stile"><span class="sn">' + (i + 1) + '</span><span class="se" aria-hidden="true">' + s[0] + '</span><span class="st">' + esc(s[1]) + '</span></div>'; }).join('') + '</div>';
+  }
+  function cardsH(list, act){
+    return '<div class="cards">' + list.map(function(i, k){ return tileH(act, 'data-i="' + k + '"', i.e, i.t, !!(state.pick && state.pick.src === i)); }).join('') + '</div>';
+  }
+  function smallPal(act, cur){
+    return '<div class="palette small">' + BLOCKS.filter(function(b){ return b.id !== 'air'; }).map(function(b){
+      return '<button type="button" class="slot-btn" data-act="' + act + '" data-id="' + b.id + '" aria-label="' + b.name + '" aria-pressed="' + (cur === b.id) + '"><span class="slot"><i style="background-image:url(' + b.icon + ')"></i></span><span class="lbl">' + b.name + '</span></button>';
+    }).join('') + '</div>';
+  }
+
+  function menuH(){
+    return '<div class="sec-head"><span class="em" style="font-size:34px">🎉</span><h2>Spaß</h2></div><div class="menu">' +
+      SUBS.map(function(s){ return tileH('sub', 'data-id="' + s.id + '"', s.e, s.n, false); }).join('') + '</div>';
+  }
+  function detailH(){
+    var j = state.platform === 'java', s = state.sub, h = '';
+    var meta = SUBS.filter(function(x){ return x.id === s; })[0];
+    h += '<div class="back-row">' + btnH('back', '', '← Zurück') + '<h2>' + meta.e + ' ' + meta.n + '</h2></div>';
+    if (s === 'knoepfe'){
+      h += stepsH([['🟧', 'Block holen'], ['🔘', 'Knopf holen'], ['📝', 'Befehl rein'], ['👆', 'Drücken!']]) + cardsH(ZAUBER, 'zauber');
+    } else if (s === 'felder'){
+      h += stepsH([['🟧', 'Block holen'], ['⬜', 'Platte holen'], ['📝', 'Befehl rein'], ['⬆️', 'Platte obendrauf'], ['🏃', 'Draufstehen!']]) + cardsH(FELDER, 'feld');
+    } else if (s === 'schild'){
+      h += stepsH([['🟧', 'Block holen'], ['⬜', 'Platte holen'], ['📝', 'Befehl rein'], ['⬆️', 'Platte obendrauf'], ['👀', 'Text lesen!']]) +
+        '<label class="lbl2" for="welcomeIn">✏️ Dein Text</label><input id="welcomeIn" class="fun-field" type="text" maxlength="30" value="' + esc(F.welcome) + '" autocomplete="off">';
+    } else if (s === 'disco'){
+      h += stepsH([['🟧', 'Block holen'], ['⚙️', (j ? 'Dauerhaft' : 'Wiederholen') + ' + Immer aktiv'], ['📝', 'Befehl rein'], ['🛑', 'Stoppen: Block abbauen']]) + cardsH(DISCO, 'disco');
+    } else if (s === 'regenbogen'){
+      h += '<div class="opts">' + togH('rbOri', 'floor', '⬇️ Am Boden', F.rbOri === 'floor') + togH('rbOri', 'wall', '🧱 Als Wand', F.rbOri === 'wall') + '</div>' +
+        '<div class="steppers">' + stp(F.rbOri === 'floor' ? 'Länge' : 'Breite', 'rbN') + stp('Dicke', 'rbT') + '</div>';
+    } else if (s === 'pyramide'){
+      h += '<div class="opts">' + togH('pyKind', 'pyramid', '🔺 Pyramide', F.pyKind === 'pyramid') + togH('pyKind', 'stairs', '🪜 Treppe', F.pyKind === 'stairs') + '</div><div class="opts">' +
+        [['Stein', 'stone'], ['Holz', 'oak_planks'], ['Ziegel', 'bricks'], ['Sandstein', 'sandstone'], ['Gold', 'gold_block'], ['Diamant', 'diamond_block']]
+          .map(function(b){ return togH('pyBlock', b[1], b[0], F.pyBlock === b[1]); }).join('') + '</div>' +
+        '<div class="steppers">' + (F.pyKind === 'pyramid' ? stp('Größe', 'pyN') : stp('Stufen', 'stN')) + '</div>';
+    } else if (s === 'teich'){
+      h += '<div class="steppers" style="margin-top:6px">' + stp('Breite', 'pdW') + stp('Länge', 'pdL') + stp('Tiefe', 'pdD') + '</div>';
+    } else if (s === 'streifen'){
+      h += '<span class="lbl2">Block A</span>' + smallPal('stA', F.stA) + '<span class="lbl2">Block B</span>' + smallPal('stB', F.stB) +
+        '<div class="steppers">' + stp('Breite', 'stW') + stp('Länge', 'stL') + '</div>';
+    } else if (s === 'aufgaben'){
+      var cnt = TASKS.filter(function(t){ return done.indexOf(t.id) >= 0; }).length;
+      h += '<p class="stars">⭐ ' + cnt + ' von ' + TASKS.length + '</p>' + TASKS.map(function(t, i){
+        var dn = done.indexOf(t.id) >= 0;
+        return '<div class="task"><div class="top"><span class="em" aria-hidden="true">' + t.e + '</span><div><b>' + esc(t.t) + (dn ? ' ⭐' : '') + '</b><span class="d">' + esc(t.d) + '</span></div></div>' +
+          '<div class="trow">' + btnH('taskGo', 'data-i="' + i + '"', 'Los!', 'primary') + '<button type="button" class="btn" data-act="taskDone" data-i="' + i + '" aria-pressed="' + dn + '">⭐ Geschafft</button></div></div>';
+      }).join('');
+    } else if (s === 'raetsel'){
+      if (QZ.done){
+        var stars = ''; for (var q = 0; q < QZ.score; q++) stars += '⭐';
+        h += '<div class="qbox"><p class="qfb">' + QZ.score + ' von ' + QUIZ.length + ' richtig</p><p class="qq">' + stars + '</p><p>Beste Runde: ' + best + ' von ' + QUIZ.length + '</p>' + btnH('qagain', '', '🔁 Nochmal', 'primary') + '</div>';
+      } else {
+        var Q = QUIZ[QZ.i], ans = QZ.picked !== null;
+        h += '<div class="qbox"><p style="margin:0">' + (QZ.i + 1) + ' von ' + QUIZ.length + '</p><p class="qq">' + esc(Q.q) + '</p>' +
+          QZ.opts.map(function(o, i){
+            var c = 'btn qopt', pre = '';
+            if (ans){ if (o.k === Q.c){ c += ' ok'; pre = '✓ '; } else if (i === QZ.picked){ c += ' bad'; pre = '✗ '; } }
+            return '<button type="button" class="' + c + '" data-act="qopt" data-i="' + i + '"' + (ans ? ' disabled' : '') + '>' + pre + esc(o.t) + '</button>';
+          }).join('') +
+          (ans ? '<p class="qfb">' + (QZ.opts[QZ.picked].k === Q.c ? 'Richtig! ⭐' : 'Fast! Grün ist richtig.') + '</p>' + btnH('qnext', '', QZ.i === QUIZ.length - 1 ? 'Ergebnis' : 'Weiter', 'primary') : '') +
+          (voiceOk ? '<div style="margin-top:16px">' + btnH('qspeak', '', '🔊 Vorlesen', 'small') + '</div>' : '') + '</div>';
+      }
+    } else if (s === 'meine'){
+      if (!favs.length) h += '<p class="empty">Noch leer. Tippe unten auf ⭐ Merken.</p>';
+      h += favs.map(function(f, i){
+        return '<div class="fav"><label class="lbl2" for="fav' + i + '">Name</label><input id="fav' + i + '" class="fun-field" type="text" maxlength="40" data-fav="' + i + '" value="' + esc(f.name) + '">' +
+          '<div class="trow" style="margin-top:16px">' + btnH('favShow', 'data-i="' + i + '"', '⌨️ Zeigen', 'primary') + btnH('favDel', 'data-i="' + i + '"', '🗑️ Löschen') + '</div></div>';
+      }).join('');
+    }
+    return h;
+  }
+  function renderFun(){ document.getElementById('funBody').innerHTML = state.sub ? detailH() : menuH(); }
+  function setSub(id){
+    state.sub = id;
+    state.pick = id && AUTO[id] ? { t: AUTO[id].t, make: AUTO[id].make, src: null } : null;
+    renderBar(); renderFun();
+    if (id){ var m = SUBS.filter(function(x){ return x.id === id; })[0]; if (id === 'raetsel' && voiceOn) speak(quizText()); else say(m.n); }
+  }
+  function pickList(list, i, kind){
+    var it = list[i];
+    state.pick = { t: it.t, src: it, make: function(){ return blockRows(it.c(), kind); } };
+    renderBar(); renderFun(); say(it.t);
+  }
+  var funBody = document.getElementById('funBody');
+  funBody.addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    var act = b.dataset.act, i = parseInt(b.dataset.i, 10), val = b.dataset.val;
+    if (act === 'sub') return setSub(b.dataset.id);
+    if (act === 'back'){ state.sub = null; state.pick = null; renderBar(); renderFun(); return; }
+    if (act === 'zauber') return pickList(ZAUBER, i, 'knopf');
+    if (act === 'feld') return pickList(FELDER, i, 'platte');
+    if (act === 'disco'){
+      var it = DISCO[i];
+      state.pick = { t: it.t, src: it, make: function(){ return [
+        { label: '🟧 Befehlsblock holen', text: '/give @s command_block' },
+        { label: '📝 Befehl eintragen (ohne /)', text: it.c() },
+        { label: '🛑 Stoppen: Block abbauen, dann', text: '/time set day' }]; } };
+      renderBar(); renderFun(); say(it.t); return;
+    }
+    if (act === 'step'){
+      var key = b.dataset.v, L = LIM[key];
+      V[key] = clamp(V[key] + parseInt(b.dataset.d, 10) * L[2], L[0], L[1]);
+      renderBar(); renderFun(); return;
+    }
+    if (act === 'rbOri') F.rbOri = val;
+    else if (act === 'pyKind') F.pyKind = val;
+    else if (act === 'pyBlock') F.pyBlock = val;
+    else if (act === 'stA') F.stA = b.dataset.id;
+    else if (act === 'stB') F.stB = b.dataset.id;
+    else if (act === 'taskDone'){
+      var id = TASKS[i].id, at = done.indexOf(id);
+      if (at >= 0) done.splice(at, 1); else done.push(id);
+      save('bauhelfer.done', done);
+    }
+    else if (act === 'taskGo'){
+      var t = TASKS[i];
+      if (t.build){
+        state.shape = t.build.shape; state.block = t.build.block; state.w = t.build.w; state.l = t.build.l; state.h = t.build.h; state.base = 0;
+        setTab('bauen'); render(); return;
+      }
+      setSub(t.go); window.scrollTo(0, 0); return;
+    }
+    else if (act === 'qopt'){
+      if (QZ.picked !== null) return;
+      QZ.picked = i; if (QZ.opts[i].k === QUIZ[QZ.i].c) QZ.score++;
+    }
+    else if (act === 'qnext'){
+      QZ.i++;
+      if (QZ.i >= QUIZ.length){ QZ.done = true; if (QZ.score > best){ best = QZ.score; save('bauhelfer.best', best); } }
+      else { newQ(); if (voiceOn) speak(quizText()); }
+    }
+    else if (act === 'qagain'){ QZ.i = 0; QZ.score = 0; QZ.done = false; newQ(); if (voiceOn) speak(quizText()); }
+    else if (act === 'qspeak'){ speak(quizText()); return; }
+    else if (act === 'favShow'){ var f = favs[i]; state.pick = { t: f.name, src: f, make: function(){ return f.rows; } }; }
+    else if (act === 'favDel'){ favs.splice(i, 1); save('bauhelfer.favs', favs); }
+    renderBar(); renderFun();
+  });
+  funBody.addEventListener('input', function(e){
+    var t = e.target;
+    if (t.id === 'welcomeIn'){ F.welcome = t.value; renderBar(); }
+    else if (t.dataset && t.dataset.fav !== undefined){ favs[parseInt(t.dataset.fav, 10)].name = t.value; save('bauhelfer.favs', favs); }
+  });
+
+  /* ---------- Merken, Vorlesen, Version, Tabs ---------- */
+  var live = document.getElementById('live'), saveBtn = document.getElementById('saveBtn'), saveTimer;
+  saveBtn.addEventListener('click', function(){
+    var d = barData(); if (!d.save) return;
+    var title = state.pick ? ptitle(state.pick) : describe();
+    favs.unshift({ name: title, rows: d.rows.map(function(r){ return { label: r.label, text: r.text }; }) });
+    favs = favs.slice(0, 30); save('bauhelfer.favs', favs);
+    saveBtn.textContent = '✓ Gemerkt'; live.textContent = 'Befehl gemerkt';
+    clearTimeout(saveTimer); saveTimer = setTimeout(function(){ saveBtn.textContent = '⭐ Merken'; }, 1600);
+    if (state.tab === 'spass' && state.sub === 'meine') renderFun();
+  });
+  var speakBtn = document.getElementById('speakBtn'), voiceBtn = document.getElementById('voiceBtn');
+  if (voiceOk){ speakBtn.hidden = false; voiceBtn.hidden = false; }
+  voiceBtn.setAttribute('aria-pressed', String(voiceOn));
+  voiceBtn.addEventListener('click', function(){
+    voiceOn = !voiceOn; save('bauhelfer.voice', voiceOn);
+    voiceBtn.setAttribute('aria-pressed', String(voiceOn));
+    if (voiceOn) speak('Vorlesen ist an'); else { try { synth.cancel(); } catch (err) {} }
+  });
+  speakBtn.addEventListener('click', function(){ speak(barData().say); });
+
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('.seg [data-p]'); if (!b) return;
+    state.platform = b.dataset.p;
+    Array.prototype.forEach.call(document.querySelectorAll('.seg [data-p]'), function(x){ x.setAttribute('aria-pressed', String(x.dataset.p === state.platform)); });
+    if (state.pick && state.pick.src && state.pick.src.only && state.pick.src.only !== state.platform) state.pick = null;
+    renderKiste(); renderFun(); renderBar();
+  });
+
+  var TABS = ['bauen', 'kiste', 'spass'], TABNAMES = { bauen: 'Bauen', kiste: 'Befehle', spass: 'Spaß' };
+  function setTab(t){
+    state.tab = t; state.pick = null;
+    TABS.forEach(function(id){
+      document.getElementById('tab-' + id).hidden = id !== t;
+      document.getElementById('tb-' + id).setAttribute('aria-selected', String(id === t));
+    });
+    if (t === 'spass' && state.sub) setSub(state.sub); else renderBar();
+    renderKiste(); renderFun();
+    window.scrollTo(0, 0);
+  }
+  document.querySelector('.tabs').addEventListener('click', function(e){
+    var b = e.target.closest('.tab'); if (!b) return;
+    setTab(b.dataset.tab); say(TABNAMES[b.dataset.tab]);
+  });
+
+  render();
+  setTab('bauen');
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+</script>
+</body>
+</html>
